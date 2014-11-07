@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Código Penal</string>
+    <string name="app_label">NCPP</string>
+    <string name="app_version">Versión 1.0</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_main">Código Procesal Penal</string>
+    <string name="action_settings">Configuración</string>
+    <string name="action_goto">Ir a</string>
+    <string name="action_favorites">Favoritos</string>
+    <string name="action_search">Buscar</string>
+    <string name="action_voz">Busqueda por Voz</string>
+    <string name="action_notes">Notas</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_help">Ayuda</string>
+    <string name="search_hint">Busca aqui</string>
+    <string name="add_favorites">Agregar a Favoritos</string>
+    <string name="del_favorites">Eliminar de Favoritos</string>
+    <string name="add_note">Agregar una Nota</string>
+    <string name="show_note">Ver Nota</string>
+    <string name="edit_note">Modificar Nota</string>
+    <string name="copy_clipboard">Copiar al portapapeles</string>
+    <string name="del_notes">Eliminar Nota</string>
+
+</resources>
