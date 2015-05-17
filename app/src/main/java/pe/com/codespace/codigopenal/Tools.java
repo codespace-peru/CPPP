@@ -7,15 +7,10 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-//import android.support.v4.view.MenuItemCompat;
-//import android.support.v7.widget.SearchView;
+import android.net.Uri;
 import android.support.v4.view.MenuItemCompat;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -23,7 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * Created by Carlos on 01/03/14.
+ * Creado por Carlos on 01/03/14.
  */
 public class Tools {
 
@@ -158,13 +153,13 @@ public class Tools {
 
 
     public static void MostrarFavoritos(Context context, int cantidadArticulos){
-        Intent intent = new Intent(context, FavoritosActivity.class);
+        Intent intent = new Intent(context, ActivityFavoritos.class);
         intent.putExtra("cantidadArticulosNorma",cantidadArticulos);
         context.startActivity(intent);
     }
 
     public static void MostrarNotas(Context context, int cantidadArticulos){
-        Intent intent = new Intent(context, NotesActivity.class);
+        Intent intent = new Intent(context, ActivityNotes.class);
         intent.putExtra("cantidadArticulosNorma",cantidadArticulos);
         context.startActivity(intent);
     }
@@ -185,13 +180,13 @@ public class Tools {
                 String value = input.getText().toString();
 
                 if(Tools.isNumeric(value)){
-                    String[] articulo = null;
+                    String[] articulo;
                     SQLiteHelperCodPenal myDBHelper;
                     myDBHelper = SQLiteHelperCodPenal.getInstance(ctx);
                     articulo = myDBHelper.getArticulo(Integer.parseInt(value));
                     int art = Integer.parseInt(value);
                     if(art>0 && art<=cantidadArticulos){
-                        Intent intent = new Intent(ctx,TextActivity.class);
+                        Intent intent = new Intent(ctx,ActivityText.class);
                         intent.putExtra("cantidadArticulosNorma", cantidadArticulos);
                         intent.putExtra("numLibro", Integer.parseInt(articulo[0]));
                         intent.putExtra("numSeccion", Integer.parseInt(articulo[1]));
@@ -199,7 +194,7 @@ public class Tools {
                         intent.putExtra("numCapitulo", Integer.parseInt(articulo[3]));
                         intent.putExtra("gotoArticulo",Integer.parseInt(value));
                         intent.putExtra("ir",true);
-                        if(ctx instanceof TextActivity) {
+                        if(ctx instanceof ActivityText) {
                             ((Activity) ctx).finish();
                         }
                         ctx.startActivity(intent);
@@ -217,7 +212,7 @@ public class Tools {
         alert.show();
     }
 
-    public static void CopyArticuloToClipboard(Context context, int art){
+    public static void CopyArticuloToClipboard(Context context, double art){
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE) ;
         SQLiteHelperCodPenal myDBHelper;
         myDBHelper = SQLiteHelperCodPenal.getInstance(context);
@@ -227,7 +222,7 @@ public class Tools {
         Toast.makeText(context, "El " + articulo[4] + " ha sido copiado al portapapeles.", Toast.LENGTH_LONG).show();
     }
 
-    public static void CopyNotaToClipboard(Context context, int art){
+    public static void CopyNotaToClipboard(Context context, double art){
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE) ;
         SQLiteHelperCodPenal myDBHelper;
         myDBHelper = SQLiteHelperCodPenal.getInstance(context);
@@ -237,19 +232,19 @@ public class Tools {
         Toast.makeText(context, "El " + nota[0] + " ha sido copiado al portapapeles.", Toast.LENGTH_LONG).show();
     }
 
-    public static final void AgregarFavorito(Context context, int numArticulo, String nombreArticulo){
+    public static void AgregarFavorito(Context context, double numArticulo, String nombreArticulo){
         boolean flag = false;
         SQLiteHelperCodPenal myDBHelper1;
         myDBHelper1 = SQLiteHelperCodPenal.getInstance(context);
         if(myDBHelper1.setFavorito(numArticulo))
             flag = true;
 
-        if(flag == true)
+        if(flag)
             Toast.makeText(context,"Se agregó " + nombreArticulo.toLowerCase() + " a Favoritos",Toast.LENGTH_LONG).show();
     }
 
-    public static final void EliminarFavorito(final Context context, final int numArticulo, final String nombreArticulo, final int cantidadArticulos){
-        final Intent intent = new Intent(context,FavoritosActivity.class);
+    public static void EliminarFavorito(final Context context, final double numArticulo, final String nombreArticulo, final int cantidadArticulos){
+        final Intent intent = new Intent(context,ActivityFavoritos.class);
         AlertDialog.Builder confirmar = new AlertDialog.Builder(context);
         confirmar.setTitle("Eliminar de Favoritos");
         confirmar.setMessage("¿Está seguro que desea quitar el " + nombreArticulo + " de Mis Favoritos?");
@@ -261,7 +256,7 @@ public class Tools {
                 myDBHelper1 = SQLiteHelperCodPenal.getInstance(context);
                 if (myDBHelper1.eliminarFavorito(numArticulo)) {
                     Toast.makeText(context, "Se eliminó " + nombreArticulo.toLowerCase() + " de Favoritos", Toast.LENGTH_LONG).show();
-                    if(context instanceof FavoritosActivity){
+                    if(context instanceof ActivityFavoritos){
                         ((Activity) context).finish();
                         intent.putExtra("cantidadArticulosNorma",cantidadArticulos);
                         context.startActivity(intent);
@@ -276,16 +271,16 @@ public class Tools {
         confirmar.show();
     }
 
-    public static final void AgregarNota(Context context, int numArticulo, String nombreArticulo, int cantidadArticulos){
-        Intent intent1 = new Intent(context,AddNoteActivity.class);
+    public static void AgregarNota(Context context, double numArticulo, String nombreArticulo, int cantidadArticulos){
+        Intent intent1 = new Intent(context,ActivityAddNote.class);
         intent1.putExtra("numeroArticulo",numArticulo);
         intent1.putExtra("nombreArticulo",nombreArticulo);
         intent1.putExtra("cantidadArticulosNorma", cantidadArticulos);
         context.startActivity(intent1);
     }
 
-    public static final void EliminarNota(final Context context, final int numArticulo, final String nombreArticulo, int cantidadArticulos){
-        final Intent intent = new Intent(context,NotesActivity.class);
+    public static void EliminarNota(final Context context, final double numArticulo, final String nombreArticulo, int cantidadArticulos){
+        final Intent intent = new Intent(context,ActivityNotes.class);
         intent.putExtra("cantidadArticulosNorma",cantidadArticulos);
         AlertDialog.Builder confirmar = new AlertDialog.Builder(context);
         confirmar.setTitle("Eliminar Anotación");
@@ -310,8 +305,8 @@ public class Tools {
         confirmar.show();
     }
 
-    public static final void ShowNota(Context context, int numArticulo, String nombreArticulo){
-        String nota = "";
+    public static void ShowNota(Context context, double numArticulo, String nombreArticulo){
+        String nota;
         SQLiteHelperCodPenal myDBHelper1;
         myDBHelper1 = SQLiteHelperCodPenal.getInstance(context);
         nota = myDBHelper1.getNota(numArticulo)[2];
@@ -351,12 +346,16 @@ public class Tools {
         }
     }*/
 
-    public static final void QuerySubmit(Context context, MenuItem menuItem, int cantidadArticulos, String query){
-        Intent intent = new Intent(context,SearchResultsActivity.class);
+    public static void QuerySubmit(Context context, MenuItem menuItem, int cantidadArticulos, String query){
+        Intent intent = new Intent(context,ActivitySearchResults.class);
         intent.putExtra("searchText", query);
         intent.putExtra("cantidadArticulosNorma", cantidadArticulos);
         context.startActivity(intent);
         MenuItemCompat.collapseActionView(menuItem);
+    }
+
+    public static void ShareApp(Context context){
+        Social.share(context, context.getResources().getString(R.string.action_share), context.getResources().getString(R.string.share_description) + " " + Uri.parse("https://play.google.com/store/apps/details?id=pe.com.codespace.codigopenal"));
     }
 
 }

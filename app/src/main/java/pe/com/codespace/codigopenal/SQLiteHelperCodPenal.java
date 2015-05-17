@@ -16,11 +16,11 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 
 /**
- * Created by Carlos on 7/01/14.
+ * Creado por Carlos on 7/01/14.
  */
 public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
     private final Context myContext;
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "codigopenal.db";
     private static final String DATABASE_PATH = "databases/";
     private static File DATABASE_FILE = null;
@@ -52,6 +52,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             }
         }
         catch(SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -68,7 +69,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        mInvalidDatabaseFile = false;
+        mInvalidDatabaseFile = true;
         mIsUpgraded = true;
     }
 
@@ -89,7 +90,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         }
     }
 
-    public void copyDatabase()  {
+    private void copyDatabase()  {
         AssetManager assetManager = myContext.getResources().getAssets();
         InputStream myInput = null;
         OutputStream myOutput = null;
@@ -97,21 +98,22 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             myInput = assetManager.open(DATABASE_PATH +DATABASE_NAME);
             myOutput = new FileOutputStream(DATABASE_FILE);
             byte[] buffer = new byte[1024];
-            int read=0;
+            int read;
             while ((read = myInput.read(buffer)) != -1) {
                 myOutput.write(buffer, 0, read);
             }
         }
         catch (IOException ex){
+            ex.printStackTrace();
         }
         finally {
             if(myInput != null){
                 try{ myInput.close(); }
-                catch(IOException ex){ }
+                catch(IOException ex){ex.printStackTrace(); }
             }
             if(myOutput!=null){
                 try{ myOutput.close(); }
-                catch (IOException ex){ }
+                catch (IOException ex){ex.printStackTrace(); }
             }
             setDataBaseVersion();
             mInvalidDatabaseFile = false;
@@ -125,6 +127,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             db.execSQL("PRAGMA user_version=" + DATABASE_VERSION);
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -135,7 +138,13 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
     }
 
     private void doUpgrade(){
-
+        try{
+            myContext.deleteDatabase(DATABASE_NAME);
+            copyDatabase();
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     public String[][] getLibros(){
@@ -158,6 +167,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             return arrayOfString;
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -190,6 +200,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             return arrayOfString;
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -224,6 +235,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             return arrayOfString;
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -260,6 +272,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             return arrayOfString;
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -291,6 +304,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             return arrayOfString;
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
            throw ex;
         }
         finally {
@@ -320,6 +334,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             return arrayOfString;
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -350,6 +365,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             return arrayOfString;
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
            throw ex;
         }
         finally {
@@ -370,7 +386,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             array[3] = String.valueOf(cap);
             Cursor cursor = db.rawQuery("SELECT nombreCapitulo, descripCapitulo FROM capitulos WHERE numLibro=? AND numSeccion=? AND numTitulo = ? and numCapitulo = ?", array);
             String[] arrayOfString = (String[]) Array.newInstance(String.class, new int[]{2});
-            int i = 0;
+            int i=0;
             if (cursor.moveToFirst()) {
                 while ( !cursor.isAfterLast() ) {
                     arrayOfString[0] = cursor.getString(0);
@@ -383,6 +399,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             return arrayOfString;
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -393,13 +410,11 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
     }
 
 
-    public String[] getArticulo(int art){
+    public String[] getArticulo(double art){
         SQLiteDatabase db = null;
         try{
             db = getReadableDatabase();
-            String[] array = new String[1];
-            array[0] = String.valueOf(art);
-            Cursor cursor = db.rawQuery("SELECT numLibro, numSeccion, numTitulo, numCapitulo, nombreArticulo, descripArticulo, textArticulo FROM articulos WHERE numArticulo = ?", array);
+            Cursor cursor = db.rawQuery("SELECT numLibro, numSeccion, numTitulo, numCapitulo, nombreArticulo, descripArticulo, textArticulo FROM articulos WHERE numArticulo = ?", new String[] {String.valueOf(art)});
             String[] arrayOfString = (String[]) Array.newInstance(String.class, new int[]{7});
             int i = 0;
             if (cursor.moveToFirst()) {
@@ -419,6 +434,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             return arrayOfString;
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -455,6 +471,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             return arrayOfString;
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -464,23 +481,20 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         }
     }
 
-    public boolean es_favorito(int art) {
+    public boolean es_favorito(double art) {
         SQLiteDatabase db = null;
-        try{
+        Cursor cursor = null;
+        try {
             db = getReadableDatabase();
-            Cursor cursor = db.rawQuery("SELECT numArticulo FROM favoritos WHERE numArticulo = ? ", new String[]{String.valueOf(art)});
-            if(cursor.moveToFirst()){
-                if(cursor.getInt(0) == art)
-                    return true;
-                else
-                    return false;
-            }
-            else
-                return false;
+            cursor = db.rawQuery("SELECT numArticulo FROM favoritos WHERE numArticulo = ? ", new String[]{String.valueOf(art)});
+            return cursor.moveToFirst() && cursor.getDouble(0) == art;
         }catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
+            if(cursor!=null)
+                cursor.close();
             if(db != null && db.isOpen()){
                 db.close();
             }
@@ -507,6 +521,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             cursor.close();
             return arrayOfString;
         }catch(SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -516,7 +531,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         }
     }
 
-   public boolean setFavorito(int art){
+   public boolean setFavorito(double art){
         SQLiteDatabase db=null;
         try{
             boolean flag = false;
@@ -534,7 +549,8 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             }
             return flag;
         } catch (SQLiteException ex){
-          throw ex;
+            ex.printStackTrace();
+            throw ex;
         }
         finally {
             if(db != null && db.isOpen()){
@@ -543,7 +559,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         }
    }
 
-   public boolean eliminarFavorito(int art){
+   public boolean eliminarFavorito(double art){
         SQLiteDatabase db = null;
         try{
             boolean flag = false;
@@ -555,6 +571,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             }
             return flag;
         } catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -584,6 +601,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             cursor.close();
             return arrayOfString;
         }catch(SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -593,30 +611,27 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         }
     }
 
-    public boolean hay_nota(int art) {
+    public boolean hay_nota(double art) {
         SQLiteDatabase db = null;
-        try{
+        Cursor cursor = null;
+        try {
             db = getReadableDatabase();
-            Cursor cursor = db.rawQuery("select numArticulo from NOTAS where numArticulo = ? ", new String[]{String.valueOf(art)});
-            if(cursor.moveToFirst()){
-                if(cursor.getInt(0)  == art )
-                    return true;
-                else
-                    return false;
-            }
-            else
-                return false;
+            cursor = db.rawQuery("select numArticulo from NOTAS where numArticulo = ? ", new String[]{String.valueOf(art)});
+            return cursor.moveToFirst() && cursor.getDouble(0) == art;
         }catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
+            if(cursor != null)
+                cursor.close();
             if(db != null && db.isOpen()){
                 db.close();
             }
         }
     }
 
-    public String[] getNota(int art){
+    public String[] getNota(double art){
         SQLiteDatabase db = null;
         try{
             db = getReadableDatabase();
@@ -636,6 +651,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             return arrayOfString;
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -645,7 +661,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         }
     }
 
-    public boolean AddNota(int art, String nota){
+    public boolean AddNota(double art, String nota){
         SQLiteDatabase db = null;
         try{
             boolean flag = false;
@@ -662,6 +678,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             }
             return flag;
         } catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -671,7 +688,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         }
     }
 
-    public boolean UpdateNota(int art, String nota){
+    public boolean UpdateNota(double art, String nota){
         SQLiteDatabase db = null;
         try{
             boolean flag = false;
@@ -685,6 +702,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             }
             return flag;
         } catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -694,7 +712,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         }
     }
 
-    public boolean EliminarNota(int art){
+    public boolean EliminarNota(double art){
         SQLiteDatabase db = null;
         try{
             boolean flag = false;
@@ -706,6 +724,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             }
             return flag;
         } catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {
@@ -746,6 +765,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             return arrayOfString;
         }
         catch (SQLiteException ex){
+            ex.printStackTrace();
             throw ex;
         }
         finally {

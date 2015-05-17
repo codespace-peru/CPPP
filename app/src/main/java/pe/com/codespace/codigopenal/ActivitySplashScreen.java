@@ -9,7 +9,7 @@ import android.view.WindowManager;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class SplashScreenActivity extends Activity {
+public class ActivitySplashScreen extends Activity {
 
     private static final long SPLASH_SCREEN_DELAY = 2000;
 
@@ -24,7 +24,7 @@ public class SplashScreenActivity extends Activity {
         TimerTask task = new TimerTask() {
         @Override
         public void run() {
-            Intent intent = new Intent().setClass(SplashScreenActivity.this, MainActivity.class);
+            Intent intent = new Intent().setClass(ActivitySplashScreen.this, ActivityMain.class);
             startActivity(intent);
             finish();
         }

@@ -11,22 +11,20 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 
 /**
- * Created by Carlos on 17/02/14.
+ * Creado por Carlos on 17/02/14.
  */
 public class AdapterListArticulos extends ArrayAdapter {
 
     private final Context context;
     private final String[][] values;
-    final List<String[]> misArticulos = new ArrayList<String[]>();
-    String searchText = "";
-    boolean search = false;
+    private final List<String[]> misArticulos = new ArrayList<String[]>();
+    private String searchText = "";
+    private boolean search = false;
 
 
     public AdapterListArticulos(Context pContext, String[][] pValues) {
@@ -71,7 +69,7 @@ public class AdapterListArticulos extends ArrayAdapter {
             holder.myNumber.setText(arts[0]);
             holder.myTitle.setText(arts[1] + ": " + arts[2]);
             CharSequence cc;
-            if(search == true){
+            if(search){
                 cc = searchResaltado(searchText,arts[3]);
                 holder.myText.setText(cc);
             }
@@ -92,21 +90,17 @@ public class AdapterListArticulos extends ArrayAdapter {
         }
     }
 
-    public static CharSequence searchResaltado (String search, String originalText) {
-        String normalizedText = Normalizer.normalize(originalText, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
-        String[] searchWord = search.split(" ");
+    private static CharSequence searchResaltado(String search, String originalText) {
+        String normalizedText = originalText.toLowerCase(); //Normalizer.normalize(originalText, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
+        String[] searchWord = search.toLowerCase().split(" ");
         Spannable highlighted = new SpannableString(originalText);
         for(int i=0;i<searchWord.length;i++){
             int start = normalizedText.indexOf(searchWord[i]);
-            if (start < 0) {
-                continue;
-            } else {
-                while (start >= 0) {
-                    int spanStart = Math.min(start, originalText.length());
-                    int spanEnd = Math.min(start + searchWord[i].length(), originalText.length());
-                    highlighted.setSpan(new BackgroundColorSpan(Color.GREEN), spanStart, spanEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    start = normalizedText.indexOf(searchWord[i], spanEnd);
-                }
+            while (start >= 0) {
+                int spanStart = Math.min(start, originalText.length());
+                int spanEnd = Math.min(start + searchWord[i].length(), originalText.length());
+                highlighted.setSpan(new BackgroundColorSpan(Color.YELLOW), spanStart, spanEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                start = normalizedText.indexOf(searchWord[i], spanEnd);
             }
         }
         return highlighted;

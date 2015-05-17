@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -17,31 +17,37 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import java.util.ArrayList;
 
 /**
- * Created by Carlos on 01/03/14.
+ * Creado por Carlos on 01/03/14.
  */
-public class NotesActivity extends ActionBarActivity implements SearchView.OnQueryTextListener {
+public class ActivityNotes extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
-    SQLiteHelperCodPenal myDBHelper;
-    AdapterListArticulos myListAdapter;
-    int cantidadArticulosNorma;
-    ListView myList;
-    SearchView searchView;
-    MenuItem menuItem;
-    int numeroArticuloSeleccionado;
-    String nombreArticuloSeleccionado;
-    String[][] myListNotes;
-    private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
+    private SQLiteHelperCodPenal myDBHelper;
+    private AdapterListArticulos myListAdapter;
+    private int cantidadArticulosNorma;
+    private ListView myList;
+    private SearchView searchView;
+    private MenuItem menuItem;
+    private double numeroArticuloSeleccionado;
+    private String nombreArticuloSeleccionado;
+    private String[][] myListNotes;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notes);
+        if(getSupportActionBar()!=null){
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setIcon(R.drawable.ic_launcher);
+        }
+
         Intent intent = getIntent();
         cantidadArticulosNorma = intent.getExtras().getInt("cantidadArticulosNorma");
         try{
@@ -67,6 +73,13 @@ public class NotesActivity extends ActionBarActivity implements SearchView.OnQue
             AdRequest adRequest = new AdRequest.Builder().build();
             adView.loadAd(adRequest);
 
+            //Analytics
+            Tracker tracker = ((AnalyticsApplication)  getApplication()).getTracker(AnalyticsApplication.TrackerName.APP_TRACKER);
+            String nameActivity = getApplicationContext().getPackageName() + "." + this.getClass().getSimpleName();
+            tracker.setScreenName(nameActivity);
+            tracker.enableAdvertisingIdCollection(true);
+            tracker.send(new HitBuilders.AppViewBuilder().build());
+
         }catch (Exception ex){
             Log.e("Debug", "MessageError: " + ex);
         }
@@ -74,10 +87,10 @@ public class NotesActivity extends ActionBarActivity implements SearchView.OnQue
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
+        if (requestCode == MyValues.VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
             ArrayList matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             if (matches.size() > 0){
-                Intent intent = new Intent(this,SearchResultsActivity.class);
+                Intent intent = new Intent(this,ActivitySearchResults.class);
                 intent.putExtra("searchText",matches.get(0).toString());
                 this.startActivity(intent);
             }
@@ -90,17 +103,17 @@ public class NotesActivity extends ActionBarActivity implements SearchView.OnQue
         super.onCreateContextMenu(menu, view, menuInfo);
         MenuInflater inflater = getMenuInflater();
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        numeroArticuloSeleccionado = Integer.parseInt(((TextView) info.targetView.findViewById(R.id.tvNumberItem)).getText().toString());
+        numeroArticuloSeleccionado = Double.parseDouble(((TextView) info.targetView.findViewById(R.id.tvNumberItem)).getText().toString());
         nombreArticuloSeleccionado = ((TextView) info.targetView.findViewById(R.id.tvTitleItem)).getText().toString();
         menu.setHeaderTitle(nombreArticuloSeleccionado);
-        inflater.inflate(R.menu.menu_contextual_notas,menu);
+        inflater.inflate(R.menu.menu_contextual_notas, menu);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.CtxEditNote:
-                Intent intent = new Intent(this,AddNoteActivity.class);
+                Intent intent = new Intent(this,ActivityAddNote.class);
                 intent.putExtra("numeroArticulo",numeroArticuloSeleccionado);
                 intent.putExtra("nombreArticulo",nombreArticuloSeleccionado);
                 this.startActivity(intent);
@@ -110,7 +123,7 @@ public class NotesActivity extends ActionBarActivity implements SearchView.OnQue
                 Tools.EliminarNota(this, numeroArticuloSeleccionado, nombreArticuloSeleccionado, cantidadArticulosNorma);
                 return  true;
             case R.id.CtxCopyNote:
-                Tools.CopyNotaToClipboard(this,numeroArticuloSeleccionado);
+                Tools.CopyNotaToClipboard(this, numeroArticuloSeleccionado);
                 return  true;
             default:
                 return super.onContextItemSelected(item);
@@ -130,7 +143,7 @@ public class NotesActivity extends ActionBarActivity implements SearchView.OnQue
         searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setOnQueryTextListener(this);
         searchView.setQueryHint("Búsqueda...");
-        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener(){
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 searchItem.collapseActionView();
@@ -146,11 +159,13 @@ public class NotesActivity extends ActionBarActivity implements SearchView.OnQue
             case R.id.action_search:
                 break;
             case R.id.action_voice:
-                SpeechRecognitionHelper speech = new SpeechRecognitionHelper();
-                speech.run(this);
+                SpeechRecognitionHelper.run(this);
                 break;
             case R.id.action_favorites:
                 Tools.MostrarFavoritos(this, cantidadArticulosNorma);
+                break;
+            case R.id.action_share:
+                Tools.ShareApp(this);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -158,7 +173,7 @@ public class NotesActivity extends ActionBarActivity implements SearchView.OnQue
 
     @Override
     public boolean onQueryTextSubmit(String s) {
-        Tools.QuerySubmit(this,menuItem,cantidadArticulosNorma,s);
+        Tools.QuerySubmit(this, menuItem, cantidadArticulosNorma, s);
         return true;
     }
 
@@ -167,15 +182,4 @@ public class NotesActivity extends ActionBarActivity implements SearchView.OnQue
         return false;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        EasyTracker.getInstance(this).activityStart(this);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        EasyTracker.getInstance(this).activityStop(this);
-    }
 }

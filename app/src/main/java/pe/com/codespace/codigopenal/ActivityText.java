@@ -3,7 +3,7 @@ package pe.com.codespace.codigopenal;
 import android.content.Intent;
 import android.speech.RecognizerIntent;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -17,32 +17,40 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import java.util.ArrayList;
 
-public class TextActivity extends ActionBarActivity implements SearchView.OnQueryTextListener {
-    private SearchView searchView;
-    AdapterListArticulos myListAdapter;
-    ListView myList;
-    SQLiteHelperCodPenal myDBHelper;
-    String[][] LstArticulos;
-    String nombreArticuloSeleccionado="";
-    int numeroArticuloSeleccionado = -1;
-    MenuItem menuItem;
-    int cantidadArticulosNorma = 0;
-    int libro, seccion, titulo, capitulo;
-    boolean ir = false;
-    int primerArticulo;
-    int gotoArticulo;
-    private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
+public class ActivityText extends AppCompatActivity implements SearchView.OnQueryTextListener {
+    private AdapterListArticulos myListAdapter;
+    private ListView myList;
+    private SQLiteHelperCodPenal myDBHelper;
+    private String[][] LstArticulos;
+    private String nombreArticuloSeleccionado="";
+    private double numeroArticuloSeleccionado = -1;
+    private MenuItem menuItem;
+    private int cantidadArticulosNorma = 0;
+    private int libro;
+    private int seccion;
+    private int titulo;
+    private int capitulo;
+    private boolean ir = false;
+    private int primerArticulo;
+    private int gotoArticulo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text);
+        if(getSupportActionBar()!=null){
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setIcon(R.drawable.ic_launcher);
+        }
+
         Intent intent = getIntent();
         libro = intent.getExtras().getInt("numLibro");
         seccion = intent.getExtras().getInt("numSeccion");
@@ -71,18 +79,29 @@ public class TextActivity extends ActionBarActivity implements SearchView.OnQuer
                 myText1.setText(lib1[0]);
             else
                 myText1.setText(lib1[0] + ": " + lib1[1]);
-            if(sec1[0]!=null)
+
+            if(sec1[0]!=null){
                 myText2.setText(sec1[0] + ": " + sec1[1]);
+                myText2.setVisibility(View.VISIBLE);
+            }
             else
                 myText2.setVisibility(View.GONE);
-            if(tit1[0]!=null)
+
+            if(tit1[0]!=null){
                 myText3.setText(tit1[0] + ": " + tit1[1]);
+                myText3.setVisibility(View.VISIBLE);
+            }
             else
                 myText3.setVisibility(View.GONE);
-            if(cap1[0]!=null)
-                myText4.setText(cap1[0] + ": " + cap1[1]);
-            else
+
+            if(cap1[0]==null || cap1[0].equals("Sin Capitulo")){
                 myText4.setVisibility(View.GONE);
+            }
+            else{
+                myText4.setText(cap1[0] + ": " + cap1[1]);
+                myText4.setVisibility(View.VISIBLE);
+            }
+
 
             myList = (ListView) findViewById(R.id.lvText);
             myListAdapter = new AdapterListArticulos(this,LstArticulos);
@@ -105,9 +124,17 @@ public class TextActivity extends ActionBarActivity implements SearchView.OnQuer
             AdView adView = (AdView)this.findViewById(R.id.adViewText);
             AdRequest adRequest = new AdRequest.Builder().build();
             adView.loadAd(adRequest);
+
+            //Analytics
+            Tracker tracker = ((AnalyticsApplication)  getApplication()).getTracker(AnalyticsApplication.TrackerName.APP_TRACKER);
+            String nameActivity = getApplicationContext().getPackageName() + "." + this.getClass().getSimpleName();
+            tracker.setScreenName(nameActivity);
+            tracker.enableAdvertisingIdCollection(true);
+            tracker.send(new HitBuilders.AppViewBuilder().build());
+
         } catch (Exception ex) {
             ex.printStackTrace();
-        };
+        }
     }
 
     @Override
@@ -117,9 +144,9 @@ public class TextActivity extends ActionBarActivity implements SearchView.OnQuer
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
         String temp = ((TextView) info.targetView.findViewById(R.id.tvNumberItem)).getText().toString();
         nombreArticuloSeleccionado = ((TextView) info.targetView.findViewById(R.id.tvTitleItem)).getText().toString();
-        numeroArticuloSeleccionado = Integer.parseInt(temp);
+        numeroArticuloSeleccionado = Double.parseDouble(temp);
         menu.setHeaderTitle(nombreArticuloSeleccionado);
-        inflater.inflate(R.menu.menu_contextual_lista,menu);
+        inflater.inflate(R.menu.menu_contextual_lista, menu);
 
         try{
             if(myDBHelper.hay_nota(numeroArticuloSeleccionado)){
@@ -180,10 +207,10 @@ public class TextActivity extends ActionBarActivity implements SearchView.OnQuer
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
+        if (requestCode == MyValues.VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
             ArrayList matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             if (matches.size() > 0){
-                Intent intent = new Intent(this,SearchResultsActivity.class);
+                Intent intent = new Intent(this,ActivitySearchResults.class);
                 intent.putExtra("searchText",matches.get(0).toString());
                 this.startActivity(intent);
             }
@@ -196,10 +223,10 @@ public class TextActivity extends ActionBarActivity implements SearchView.OnQuer
         getMenuInflater().inflate(R.menu.menu_actionbar_main, menu);
         final MenuItem searchItem;
         searchItem = menu.findItem(R.id.action_search);
-        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setOnQueryTextListener(this);
         searchView.setQueryHint("Búsqueda...");
-        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener(){
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 MenuItemCompat.collapseActionView(searchItem);
@@ -215,8 +242,7 @@ public class TextActivity extends ActionBarActivity implements SearchView.OnQuer
             case R.id.action_search:
                 break;
             case R.id.action_voice:
-                SpeechRecognitionHelper speech = new SpeechRecognitionHelper();
-                speech.run(this);
+                SpeechRecognitionHelper.run(this);
                 break;
             case R.id.action_goto:
                 Tools.GoTo(this, cantidadArticulosNorma);
@@ -227,13 +253,16 @@ public class TextActivity extends ActionBarActivity implements SearchView.OnQuer
             case R.id.action_notes:
                 Tools.MostrarNotas(this, cantidadArticulosNorma);
                 break;
+            case R.id.action_share:
+                Tools.ShareApp(this);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onQueryTextSubmit(String s) {
-        Tools.QuerySubmit(this, menuItem,cantidadArticulosNorma, s);
+        Tools.QuerySubmit(this, menuItem, cantidadArticulosNorma, s);
         return true;
     }
 
@@ -242,15 +271,4 @@ public class TextActivity extends ActionBarActivity implements SearchView.OnQuer
         return false;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        EasyTracker.getInstance(this).activityStart(this);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        EasyTracker.getInstance(this).activityStop(this);
-    }
 }

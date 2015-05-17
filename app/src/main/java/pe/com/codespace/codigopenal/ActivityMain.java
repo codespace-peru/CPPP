@@ -4,37 +4,42 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
-import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity implements SearchView.OnQueryTextListener {
-    SearchView searchView;
-    SQLiteHelperCodPenal myDBHelper;
-    ExpandableListView myExpand;
-    AdapterExpandableListMain myAdapter;
+public class ActivityMain extends AppCompatActivity implements SearchView.OnQueryTextListener {
+    private SearchView searchView;
+    private SQLiteHelperCodPenal myDBHelper;
+    private ExpandableListView myExpand;
+    private AdapterExpandableListMain myAdapter;
     private List<Tools.RowLibro> listHeader;
     private HashMap<Tools.RowLibro, List<Tools.RowSeccion>> listChild;
-    MenuItem menuItem;
-    private static int CANTIDAD_ARTICULOS_NORMA = 566;
-    private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
+    private MenuItem menuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if(getSupportActionBar()!=null){
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setIcon(R.drawable.ic_launcher);
+        }
+
         try{
             myDBHelper = SQLiteHelperCodPenal.getInstance(this);
             prepararData();
@@ -58,9 +63,9 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
                 public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
                     switch (i){
                         case 0:
-                            Intent intentText = new Intent(MainActivity.this, TextActivity.class);
+                            Intent intentText = new Intent(ActivityMain.this, ActivityText.class);
                             intentText.putExtra("numLibro", Integer.parseInt(((TextView)view.findViewById(R.id.tvNumberLibro1)).getText().toString()));
-                            intentText.putExtra("cantidadArticulosNorma",CANTIDAD_ARTICULOS_NORMA);
+                            intentText.putExtra("cantidadArticulosNorma",MyValues.CANTIDAD_ARTICULOS_NORMA);
                             startActivity(intentText);
                     }
                     return false;
@@ -70,18 +75,18 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
             myExpand.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                 @Override
                 public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
-                    Intent intentSecond = new Intent(MainActivity.this, SecondMainActivity.class);
-                    Intent intentText = new Intent(MainActivity.this, TextActivity.class);
+                    Intent intentSecond = new Intent(ActivityMain.this, ActivitySecondMain.class);
+                    Intent intentText = new Intent(ActivityMain.this, ActivityText.class);
                     int libro = Integer.parseInt(((TextView)view.findViewById(R.id.tvNumberLibro2)).getText().toString());
                     int seccion = Integer.parseInt(((TextView)view.findViewById(R.id.tvNumberSeccion1)).getText().toString());
                     intentSecond.putExtra("numLibro", libro);
                     intentSecond.putExtra("numSeccion", seccion);
-                    intentSecond.putExtra("cantidadArticulosNorma",CANTIDAD_ARTICULOS_NORMA);
+                    intentSecond.putExtra("cantidadArticulosNorma",MyValues.CANTIDAD_ARTICULOS_NORMA);
                     intentText.putExtra("numLibro", libro);
                     intentText.putExtra("numSeccion", seccion);
                     intentText.putExtra("numTitulo",0);
                     intentText.putExtra("numCapitulo",0);
-                    intentText.putExtra("cantidadArticulosNorma",CANTIDAD_ARTICULOS_NORMA);
+                    intentText.putExtra("cantidadArticulosNorma",MyValues.CANTIDAD_ARTICULOS_NORMA);
                     switch (libro){
                         case 1://Libro Primero
                             switch (seccion){
@@ -129,6 +134,9 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
                                     break;
                             }
                             break;
+                        case 8: //Libro 8
+                            startActivity(intentText);
+                            break;
                     }
                     return false;
                 }
@@ -138,6 +146,13 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
             AdView adView = (AdView)this.findViewById(R.id.adViewMain);
             AdRequest adRequest = new AdRequest.Builder().build();
             adView.loadAd(adRequest);
+
+            //Analytics
+            Tracker tracker = ((AnalyticsApplication)  getApplication()).getTracker(AnalyticsApplication.TrackerName.APP_TRACKER);
+            String nameActivity = getApplicationContext().getPackageName() + "." + this.getClass().getSimpleName();
+            tracker.setScreenName(nameActivity);
+            tracker.enableAdvertisingIdCollection(true);
+            tracker.send(new HitBuilders.AppViewBuilder().build());
         }
         catch (Exception ex){
             ex.printStackTrace();
@@ -145,8 +160,8 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
     }
 
     private void prepararData(){
-        listHeader = new ArrayList<Tools.RowLibro>();
-        listChild = new HashMap<Tools.RowLibro, List<Tools.RowSeccion>>();
+        listHeader = new ArrayList<>();
+        listChild = new HashMap<>();
         Tools.RowSeccion child;
         List<Tools.RowSeccion> childList;
         String[][] libros, secciones;
@@ -158,7 +173,7 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
             }
             for(int i=0; i<listHeader.size();i++){
                 secciones = myDBHelper.getSecciones(i);
-                childList = new ArrayList<Tools.RowSeccion>();
+                childList = new ArrayList<>();
                 for(int j=0;j<secciones.length;j++){
                     child = new Tools.RowSeccion(Integer.parseInt(secciones[j][0]), Integer.parseInt(secciones[j][1]),secciones[j][2], secciones[j][3]);
                     childList.add(child);
@@ -173,10 +188,10 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
+        if (requestCode == MyValues.VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
             ArrayList matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             if (matches.size() > 0){
-                Intent intent = new Intent(this,SearchResultsActivity.class);
+                Intent intent = new Intent(this,ActivitySearchResults.class);
                 intent.putExtra("searchText",matches.get(0).toString());
                 this.startActivity(intent);
             }
@@ -207,17 +222,19 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
             case R.id.action_search:
                 break;
             case R.id.action_voice:
-                SpeechRecognitionHelper speech = new SpeechRecognitionHelper();
-                speech.run(this);
+                SpeechRecognitionHelper.run(this);
                 break;
             case R.id.action_goto:
-                Tools.GoTo(this, CANTIDAD_ARTICULOS_NORMA);
+                Tools.GoTo(this, MyValues.CANTIDAD_ARTICULOS_NORMA);
                 break;
             case R.id.action_favorites:
-                Tools.MostrarFavoritos(this, CANTIDAD_ARTICULOS_NORMA);
+                Tools.MostrarFavoritos(this, MyValues.CANTIDAD_ARTICULOS_NORMA);
                 break;
             case R.id.action_notes:
-                Tools.MostrarNotas(this, CANTIDAD_ARTICULOS_NORMA);
+                Tools.MostrarNotas(this, MyValues.CANTIDAD_ARTICULOS_NORMA);
+                break;
+            case R.id.action_share:
+                Tools.ShareApp(this);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -225,7 +242,7 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
 
     @Override
     public boolean onQueryTextSubmit(String s) {
-        Tools.QuerySubmit(this, menuItem, CANTIDAD_ARTICULOS_NORMA, s);
+        Tools.QuerySubmit(this, menuItem, MyValues.CANTIDAD_ARTICULOS_NORMA, s);
         return true;
     }
 
@@ -234,15 +251,4 @@ public class MainActivity extends ActionBarActivity implements SearchView.OnQuer
         return false;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        EasyTracker.getInstance(this).activityStart(this);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        EasyTracker.getInstance(this).activityStop(this);
-    }
 }

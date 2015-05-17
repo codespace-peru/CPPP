@@ -1,71 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background_text">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_marginBottom="50dp">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/title_app_main"
-        android:textColor="@color/text_color3"
-        android:gravity="center_horizontal"
-        android:text="AGREGAR NOTA"
-        android:id="@+id/addnote_title"
-        android:textStyle="bold"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:layout_marginTop="5dp"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="10dp"
-        android:background="@color/title_divider">
-    </View>
-
-    <TextView
-        android:id="@+id/tvAddNota"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/text_title_article_size"
-        android:text="Nota"
-        android:textStyle="bold"
-        android:textColor="@color/text_color2"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:layout_marginTop="10dp"/>
-
-    <EditText
-        android:id="@+id/edtAddNota"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/add_note_size"
-        android:layout_marginTop="20dp"
-        android:ems="10"
-        android:gravity="left|top"
-        android:inputType="textMultiLine"
-        android:background="@color/blanco"
-        android:textSize="@dimen/text_content_article_size"
-        android:hint="Ingrese sus anotaciones aquí...">
-    </EditText>
-</LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:layout_alignParentBottom="true">
-        <com.google.android.gms.ads.AdView android:id="@+id/adViewAddNote"
-            android:layout_width="wrap_content"
+        android:orientation="vertical"
+        android:paddingRight="@dimen/small_padding_text"
+        android:paddingLeft="@dimen/small_padding_text"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:id="@+id/addnote_title"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="bottom"
-            ads:adUnitId="ca-app-pub-4549935446415170/4804105643"
-            ads:adSize="BANNER"/>
+            android:textSize="@dimen/title_main_size"
+            android:textColor="@color/text_color1"
+            android:gravity="center_horizontal"
+            android:paddingTop="@dimen/large_padding_text"
+            android:paddingBottom="@dimen/large_padding_text"
+            android:text="AGREGAR NOTA"
+            android:textStyle="bold"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/view_height"
+            android:background="@color/title_divider">
+        </View>
+
+        <TextView
+            android:id="@+id/tvAddNota"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_title_article_size"
+            android:text="@string/test"
+            android:textStyle="bold"
+            android:textColor="@color/text_color2"
+            android:paddingTop="@dimen/large_padding_text"/>
+
+        <EditText
+            android:id="@+id/edtAddNota"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/add_note_size"
+            android:layout_marginTop="@dimen/large_padding_text"
+            android:ems="10"
+            android:gravity="left|top"
+            android:inputType="textMultiLine"
+            android:background="@color/blanco"
+            android:textSize="@dimen/text_content_article_size"
+            android:hint="Ingrese sus anotaciones aquí...">
+        </EditText>
     </LinearLayout>
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adViewAddNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        ads:adUnitId="@string/banner_ad_unit_id"
+        ads:adSize="SMART_BANNER"/>
+
 </RelativeLayout>

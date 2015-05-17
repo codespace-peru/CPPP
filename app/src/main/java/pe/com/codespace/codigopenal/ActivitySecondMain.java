@@ -1,11 +1,10 @@
 package pe.com.codespace.codigopenal;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,32 +12,37 @@ import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
-import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 
-public class SecondMainActivity extends ActionBarActivity implements SearchView.OnQueryTextListener {
-    SQLiteHelperCodPenal myDBHelper;
-    ExpandableListView myExpand;
-    AdapterExpandableListSecond myAdapter;
+public class ActivitySecondMain extends AppCompatActivity implements SearchView.OnQueryTextListener {
+    private SQLiteHelperCodPenal myDBHelper;
+    private ExpandableListView myExpand;
+    private AdapterExpandableListSecond myAdapter;
     private List<Tools.RowTitulo> listHeader;
     private HashMap<Tools.RowTitulo, List<Tools.RowCapitulo>> listChild;
-    int numLibro, numSeccion;
-    int cantidadArticulosNorma;
-    SearchView searchView;
-    MenuItem menuItem;
-    private static int CANTIDAD_ARTICULOS_NORMA = 566;
-    private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
+    private int numLibro;
+    private int numSeccion;
+    private int cantidadArticulosNorma;
+    private SearchView searchView;
+    private MenuItem menuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
+        if(getSupportActionBar()!=null){
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setIcon(R.drawable.ic_launcher);
+        }
 
         try{
             TextView textView1 = (TextView) findViewById(R.id.tvTitleText);
@@ -73,7 +77,7 @@ public class SecondMainActivity extends ActionBarActivity implements SearchView.
                 @Override
                 public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
                     int titulo = Integer.parseInt(((TextView)view.findViewById(R.id.tvNumberTitulo1)).getText().toString());
-                    Intent intentText = new Intent(SecondMainActivity.this, TextActivity.class);
+                    Intent intentText = new Intent(ActivitySecondMain.this, ActivityText.class);
                     intentText.putExtra("numLibro", numLibro);
                     intentText.putExtra("numSeccion", numSeccion);
                     intentText.putExtra("numTitulo", titulo);
@@ -97,7 +101,7 @@ public class SecondMainActivity extends ActionBarActivity implements SearchView.
                                     break;
                             }
                             break;
-                        case 2:
+                        case 2://Libro 2
                             switch (numSeccion){
                                 case 1://Seccion 1
                                     switch (titulo){
@@ -169,7 +173,7 @@ public class SecondMainActivity extends ActionBarActivity implements SearchView.
                 public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
                     int titulo = Integer.parseInt(((TextView)view.findViewById(R.id.tvNumberTitulo2)).getText().toString());
                     int capitulo = Integer.parseInt(((TextView)view.findViewById(R.id.tvNumberCapitulo1)).getText().toString());
-                    Intent intentText = new Intent(SecondMainActivity.this, TextActivity.class);
+                    Intent intentText = new Intent(ActivitySecondMain.this, ActivityText.class);
                     intentText.putExtra("numLibro", numLibro);
                     intentText.putExtra("numSeccion", numSeccion);
                     intentText.putExtra("numTitulo", titulo);
@@ -183,6 +187,13 @@ public class SecondMainActivity extends ActionBarActivity implements SearchView.
             AdView adView = (AdView)this.findViewById(R.id.adViewSecondMain);
             AdRequest adRequest = new AdRequest.Builder().build();
             adView.loadAd(adRequest);
+
+            //Analytics
+            Tracker tracker = ((AnalyticsApplication)  getApplication()).getTracker(AnalyticsApplication.TrackerName.APP_TRACKER);
+            String nameActivity = getApplicationContext().getPackageName() + "." + this.getClass().getSimpleName();
+            tracker.setScreenName(nameActivity);
+            tracker.enableAdvertisingIdCollection(true);
+            tracker.send(new HitBuilders.AppViewBuilder().build());
         }
         catch (Exception ex){
             ex.printStackTrace();
@@ -190,8 +201,8 @@ public class SecondMainActivity extends ActionBarActivity implements SearchView.
     }
 
     private void prepararData(){
-        listHeader = new ArrayList<Tools.RowTitulo>();
-        listChild = new HashMap<Tools.RowTitulo, List<Tools.RowCapitulo>>();
+        listHeader = new ArrayList<>();
+        listChild = new HashMap<>();
         Tools.RowCapitulo child;
         List<Tools.RowCapitulo> childList;
 
@@ -205,7 +216,7 @@ public class SecondMainActivity extends ActionBarActivity implements SearchView.
 
             for(int i=0; i<listHeader.size();i++){
                 capitulos = myDBHelper.getCapitulos(numLibro, numSeccion,i+1);
-                childList = new ArrayList<Tools.RowCapitulo>();
+                childList = new ArrayList<>();
                 for(int j=0;j<capitulos.length;j++){
                     child = new Tools.RowCapitulo(Integer.parseInt(capitulos[j][0]),Integer.parseInt(capitulos[j][1]),Integer.parseInt(capitulos[j][2]),Integer.parseInt(capitulos[j][3]),capitulos[j][4],capitulos[j][5]);
                     childList.add(child);
@@ -220,10 +231,10 @@ public class SecondMainActivity extends ActionBarActivity implements SearchView.
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
+        if (requestCode == MyValues.VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
             ArrayList matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             if (matches.size() > 0){
-                Intent intent = new Intent(this,SearchResultsActivity.class);
+                Intent intent = new Intent(this,ActivitySearchResults.class);
                 intent.putExtra("searchText",matches.get(0).toString());
                 this.startActivity(intent);
             }
@@ -254,17 +265,19 @@ public class SecondMainActivity extends ActionBarActivity implements SearchView.
             case R.id.action_search:
                 break;
             case R.id.action_voice:
-                SpeechRecognitionHelper speech = new SpeechRecognitionHelper();
-                speech.run(this);
+                SpeechRecognitionHelper.run(this);
                 break;
             case R.id.action_goto:
-                Tools.GoTo(this, CANTIDAD_ARTICULOS_NORMA);
+                Tools.GoTo(this, MyValues.CANTIDAD_ARTICULOS_NORMA);
                 break;
             case R.id.action_favorites:
-                Tools.MostrarFavoritos(this, CANTIDAD_ARTICULOS_NORMA);
+                Tools.MostrarFavoritos(this, MyValues.CANTIDAD_ARTICULOS_NORMA);
                 break;
             case R.id.action_notes:
-                Tools.MostrarNotas(this, CANTIDAD_ARTICULOS_NORMA);
+                Tools.MostrarNotas(this, MyValues.CANTIDAD_ARTICULOS_NORMA);
+                break;
+            case R.id.action_share:
+                Tools.ShareApp(this);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -272,7 +285,7 @@ public class SecondMainActivity extends ActionBarActivity implements SearchView.
 
     @Override
     public boolean onQueryTextSubmit(String s) {
-        Tools.QuerySubmit(this, menuItem, CANTIDAD_ARTICULOS_NORMA, s);
+        Tools.QuerySubmit(this, menuItem, MyValues.CANTIDAD_ARTICULOS_NORMA, s);
         return false;
     }
 
@@ -281,15 +294,4 @@ public class SecondMainActivity extends ActionBarActivity implements SearchView.
         return false;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        EasyTracker.getInstance(this).activityStart(this);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        EasyTracker.getInstance(this).activityStop(this);
-    }
 }

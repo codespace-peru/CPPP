@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
@@ -27,11 +27,9 @@
         android:id="@+id/tvTitleTitulo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="30dp"
+        android:text="@string/test"
         android:textStyle="bold"
         android:textColor="@color/text_color1"
-        android:ellipsize="end"
-        android:singleLine="true"
         android:gravity="center_vertical"
         android:textSize="@dimen/text_group_title_size"/>
 
@@ -39,8 +37,7 @@
         android:id="@+id/tvDescriptionTitulo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="@string/test"
         android:textColor="@color/text_color1"
-        android:ellipsize="end"
-        android:singleLine="true"
         android:textSize="@dimen/text_group_description_size"/>
 </LinearLayout>

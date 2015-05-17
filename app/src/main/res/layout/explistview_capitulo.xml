@@ -33,11 +33,9 @@
         android:id="@+id/tvTitleCapitulo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="30dp"
         android:textStyle="bold"
+        android:text="@string/test"
         android:textColor="@color/text_color1"
-        android:ellipsize="end"
-        android:singleLine="true"
         android:gravity="center_vertical"
         android:textSize="@dimen/text_group_title_size"/>
 
@@ -45,8 +43,7 @@
         android:id="@+id/tvDescriptionCapitulo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="@string/test"
         android:textColor="@color/text_color1"
-        android:ellipsize="end"
-        android:singleLine="true"
         android:textSize="@dimen/text_group_description_size"/>
 </LinearLayout>
