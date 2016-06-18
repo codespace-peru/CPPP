@@ -22,10 +22,8 @@ import java.util.List;
 
 
 public class ActivityMain extends AppCompatActivity implements SearchView.OnQueryTextListener {
-    private SearchView searchView;
     private SQLiteHelperCodPenal myDBHelper;
     private ExpandableListView myExpand;
-    private AdapterExpandableListMain myAdapter;
     private List<Tools.RowLibro> listHeader;
     private HashMap<Tools.RowLibro, List<Tools.RowSeccion>> listChild;
     private MenuItem menuItem;
@@ -41,9 +39,10 @@ public class ActivityMain extends AppCompatActivity implements SearchView.OnQuer
         }
 
         try{
+            AppRater.app_launched(this);
             myDBHelper = SQLiteHelperCodPenal.getInstance(this);
             prepararData();
-            myAdapter = new AdapterExpandableListMain(this, listHeader, listChild);
+            AdapterExpandableListMain myAdapter = new AdapterExpandableListMain(this, listHeader, listChild);
             myExpand = (ExpandableListView) findViewById(R.id.explvMain);
             myExpand.setGroupIndicator(null);
             myExpand.setAdapter(myAdapter);
@@ -167,15 +166,15 @@ public class ActivityMain extends AppCompatActivity implements SearchView.OnQuer
         String[][] libros, secciones;
         try{
             libros = myDBHelper.getLibros();
-            for(int i=0; i<libros.length;i++){
-                Tools.RowLibro temp1 = new Tools.RowLibro(Integer.parseInt(libros[i][0]),libros[i][1], libros[i][2]);
+            for (String[] libro : libros) {
+                Tools.RowLibro temp1 = new Tools.RowLibro(Integer.parseInt(libro[0]), libro[1], libro[2]);
                 listHeader.add(temp1);
             }
             for(int i=0; i<listHeader.size();i++){
                 secciones = myDBHelper.getSecciones(i);
                 childList = new ArrayList<>();
-                for(int j=0;j<secciones.length;j++){
-                    child = new Tools.RowSeccion(Integer.parseInt(secciones[j][0]), Integer.parseInt(secciones[j][1]),secciones[j][2], secciones[j][3]);
+                for (String[] seccion : secciones) {
+                    child = new Tools.RowSeccion(Integer.parseInt(seccion[0]), Integer.parseInt(seccion[1]), seccion[2], seccion[3]);
                     childList.add(child);
                 }
                 listChild.put(listHeader.get(i),childList);
@@ -203,7 +202,7 @@ public class ActivityMain extends AppCompatActivity implements SearchView.OnQuer
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_actionbar_main, menu);
         final MenuItem searchItem =menu.findItem(R.id.action_search);
-        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setOnQueryTextListener(this);
         searchView.setQueryHint("Búsqueda...");
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
@@ -235,6 +234,9 @@ public class ActivityMain extends AppCompatActivity implements SearchView.OnQuer
                 break;
             case R.id.action_share:
                 Tools.ShareApp(this);
+                break;
+            case R.id.action_rate:
+                Tools.RateApp(this,getPackageName());
                 break;
         }
         return super.onOptionsItemSelected(item);

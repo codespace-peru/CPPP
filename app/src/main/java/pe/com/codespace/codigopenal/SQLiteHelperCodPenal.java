@@ -16,11 +16,11 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 
 /**
- * Creado por Carlos on 7/01/14.
+ * Creado por Carlos el 7/01/14.
  */
 public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
     private final Context myContext;
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "codigopenal.db";
     private static final String DATABASE_PATH = "databases/";
     private static File DATABASE_FILE = null;
@@ -152,7 +152,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         try{
             db = getReadableDatabase();
             Cursor cursor = db.rawQuery("SELECT numLibro, nombreLibro, descripLibro FROM libros ORDER BY numLibro",null);
-            String[][] arrayOfString = (String[][])Array.newInstance(String.class, new int[] { cursor.getCount(),3 });
+            String[][] arrayOfString = (String[][])Array.newInstance(String.class, cursor.getCount(),3);
             int i = 0;
             if (cursor.moveToFirst()) {
                 while ( !cursor.isAfterLast() ) {
@@ -184,7 +184,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         try{
             db = getReadableDatabase();
             Cursor cursor = db.rawQuery("SELECT numLibro, numSeccion, nombreSeccion, descripSeccion FROM secciones WHERE numLibro = ? ORDER BY numSeccion",array);
-            String[][] arrayOfString = (String[][])Array.newInstance(String.class, new int[] { cursor.getCount(),4 });
+            String[][] arrayOfString = (String[][])Array.newInstance(String.class, cursor.getCount(),4);
             int i = 0;
             if (cursor.moveToFirst()) {
                 while ( !cursor.isAfterLast() ) {
@@ -218,7 +218,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         try{
             db = getWritableDatabase();
             Cursor cursor = db.rawQuery("SELECT numLibro, numSeccion, numTitulo, nombreTitulo, descripTitulo from titulos WHERE numLibro=? AND numSeccion=? ORDER BY numTitulo", array);
-            String[][] arrayOfString = (String[][])Array.newInstance(String.class, new int[] { cursor.getCount(),5 });
+            String[][] arrayOfString = (String[][])Array.newInstance(String.class, cursor.getCount(),5);
             int i = 0;
             if (cursor.moveToFirst()) {
                 while ( !cursor.isAfterLast() ) {
@@ -254,7 +254,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         try{
             db = getWritableDatabase();
             Cursor cursor = db.rawQuery("SELECT numLibro, numSeccion, numTitulo, numCapitulo, nombreCapitulo, descripCapitulo FROM capitulos WHERE numLibro=? AND numSeccion=? AND numTitulo = ? ORDER BY numCapitulo", array);
-            String[][] arrayOfString = (String[][])Array.newInstance(String.class, new int[] { cursor.getCount(),6 });
+            String[][] arrayOfString = (String[][])Array.newInstance(String.class, cursor.getCount(),6);
             int i = 0;
             if (cursor.moveToFirst()) {
                 while ( !cursor.isAfterLast() ) {
@@ -454,7 +454,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             array[2] = String.valueOf(titulo);
             array[3] = String.valueOf(capitulo);
             Cursor cursor = db.rawQuery("SELECT numArticulo, nombreArticulo, descripArticulo, textArticulo FROM articulos WHERE numLibro=? AND numSeccion=? AND numTitulo=? AND numCapitulo=? ORDER BY numArticulo", array);
-            String[][] arrayOfString = (String[][]) Array.newInstance(String.class, new int[]{cursor.getCount(),4});
+            String[][] arrayOfString = (String[][]) Array.newInstance(String.class, cursor.getCount(),4);
 
             int i = 0;
             if (cursor.moveToFirst()) {
@@ -506,7 +506,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         try{
             db = getReadableDatabase();
             Cursor cursor = db.rawQuery("SELECT numArticulo, nombreArticulo, descripArticulo, textArticulo FROM FAVORITOS ORDER BY numArticulo",null);
-            String[][] arrayOfString = (String[][])Array.newInstance(String.class, new int[] {cursor.getCount(),4});
+            String[][] arrayOfString = (String[][])Array.newInstance(String.class, cursor.getCount(),4);
             int i = 0;
             if (cursor.moveToFirst()) {
                 while ( !cursor.isAfterLast() ) {
@@ -586,7 +586,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
         try{
             db = getReadableDatabase();
             Cursor cursor = db.rawQuery("SELECT numArticulo, nombreArticulo, descripArticulo, nota FROM notas ORDER BY numArticulo", null);
-            String[][] arrayOfString = (String[][])Array.newInstance(String.class, new int[] {cursor.getCount(),4});
+            String[][] arrayOfString = (String[][])Array.newInstance(String.class, cursor.getCount(),4);
             int i = 0;
             if (cursor.moveToFirst()) {
                 while ( !cursor.isAfterLast() ) {
@@ -750,7 +750,7 @@ public class SQLiteHelperCodPenal extends SQLiteOpenHelper {
             db = getReadableDatabase();
             Cursor cursor = db.rawQuery(sqlLike, null);
             int j = 0;
-            String[][] arrayOfString = (String[][])Array.newInstance(String.class, new int[] { cursor.getCount(),4 });
+            String[][] arrayOfString = (String[][])Array.newInstance(String.class, cursor.getCount(),4);
             if(cursor.moveToFirst()){
                 while(!cursor.isAfterLast()){
                     arrayOfString[j][0] = cursor.getString(0);

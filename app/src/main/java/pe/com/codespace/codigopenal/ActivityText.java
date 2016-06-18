@@ -25,21 +25,11 @@ import com.google.android.gms.analytics.Tracker;
 import java.util.ArrayList;
 
 public class ActivityText extends AppCompatActivity implements SearchView.OnQueryTextListener {
-    private AdapterListArticulos myListAdapter;
-    private ListView myList;
     private SQLiteHelperCodPenal myDBHelper;
-    private String[][] LstArticulos;
     private String nombreArticuloSeleccionado="";
     private double numeroArticuloSeleccionado = -1;
     private MenuItem menuItem;
     private int cantidadArticulosNorma = 0;
-    private int libro;
-    private int seccion;
-    private int titulo;
-    private int capitulo;
-    private boolean ir = false;
-    private int primerArticulo;
-    private int gotoArticulo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +42,11 @@ public class ActivityText extends AppCompatActivity implements SearchView.OnQuer
         }
 
         Intent intent = getIntent();
-        libro = intent.getExtras().getInt("numLibro");
-        seccion = intent.getExtras().getInt("numSeccion");
-        titulo = intent.getExtras().getInt("numTitulo");
-        capitulo = intent.getExtras().getInt("numCapitulo");
-        ir = intent.getExtras().getBoolean("ir");
+        int libro = intent.getExtras().getInt("numLibro");
+        int seccion = intent.getExtras().getInt("numSeccion");
+        int titulo = intent.getExtras().getInt("numTitulo");
+        int capitulo = intent.getExtras().getInt("numCapitulo");
+        boolean ir = intent.getExtras().getBoolean("ir");
         cantidadArticulosNorma = intent.getExtras().getInt("cantidadArticulosNorma");
         TextView myText1;
         TextView myText2;
@@ -71,11 +61,11 @@ public class ActivityText extends AppCompatActivity implements SearchView.OnQuer
         try {
             myDBHelper = SQLiteHelperCodPenal.getInstance(this);
             String[] lib1 = myDBHelper.getLibro(libro);
-            String[] sec1 = myDBHelper.getSeccion(libro,seccion);
+            String[] sec1 = myDBHelper.getSeccion(libro, seccion);
             String[] tit1 = myDBHelper.getTitulo(libro, seccion, titulo);
             String[] cap1 = myDBHelper.getCapitulo(libro, seccion, titulo, capitulo);
-            LstArticulos = myDBHelper.getListaArticulos(libro, seccion, titulo, capitulo);
-            if(libro==0)
+            String[][] lstArticulos = myDBHelper.getListaArticulos(libro, seccion, titulo, capitulo);
+            if(libro ==0)
                 myText1.setText(lib1[0]);
             else
                 myText1.setText(lib1[0] + ": " + lib1[1]);
@@ -103,17 +93,17 @@ public class ActivityText extends AppCompatActivity implements SearchView.OnQuer
             }
 
 
-            myList = (ListView) findViewById(R.id.lvText);
-            myListAdapter = new AdapterListArticulos(this,LstArticulos);
+            ListView myList = (ListView) findViewById(R.id.lvText);
+            AdapterListArticulos myListAdapter = new AdapterListArticulos(this, lstArticulos);
             myList.setAdapter(myListAdapter);
             if(ir){
-                String tt = LstArticulos[0][0];
-                primerArticulo = Integer.parseInt(tt);
-                gotoArticulo = intent.getExtras().getInt("gotoArticulo");
-                myList.setSelection(gotoArticulo-primerArticulo);
+                String tt = lstArticulos[0][0];
+                int primerArticulo = Integer.parseInt(tt);
+                int gotoArticulo = intent.getExtras().getInt("gotoArticulo");
+                myList.setSelection(gotoArticulo - primerArticulo);
             }
             registerForContextMenu(myList);
-            myList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            myList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Toast.makeText(getBaseContext(), "Mantener presionado para ver opciones", Toast.LENGTH_LONG).show();
@@ -255,6 +245,9 @@ public class ActivityText extends AppCompatActivity implements SearchView.OnQuer
                 break;
             case R.id.action_share:
                 Tools.ShareApp(this);
+                break;
+            case R.id.action_rate:
+                Tools.RateApp(this,getPackageName());
                 break;
         }
         return super.onOptionsItemSelected(item);

@@ -167,6 +167,9 @@ public class ActivityNotes extends AppCompatActivity implements SearchView.OnQue
             case R.id.action_share:
                 Tools.ShareApp(this);
                 break;
+            case R.id.action_rate:
+                Tools.RateApp(this,getPackageName());
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

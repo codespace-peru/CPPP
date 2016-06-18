@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Created by Carlos on 23/11/13.
+ * Creado por Carlos el 23/11/13.
  */
 public class AdapterExpandableListSecond extends BaseExpandableListAdapter {
     private Context context;

@@ -188,6 +188,9 @@ public class ActivitySearchResults extends AppCompatActivity implements SearchVi
             case R.id.action_share:
                 Tools.ShareApp(this);
                 break;
+            case R.id.action_rate:
+                Tools.RateApp(this,getPackageName());
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

@@ -323,28 +323,19 @@ public class Tools {
         dialogoNota.show();
     }
 
-    /*public static final void CheckInternetAccessToWebview(Context context, String url){
-        final ConnectivityManager network = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        final NetworkInfo activeNetwork = network.getActiveNetworkInfo();
-        if(activeNetwork != null && activeNetwork.isConnected()){
-            Intent intent = new Intent(context, WebviewActivity.class);
-            intent.putExtra("url",url);
-            context.startActivity(intent);
+    public static void RateApp(Context mContext, String APP_PKG){
+
+        try {
+            mContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + APP_PKG)));
+        } catch (android.content.ActivityNotFoundException anfe) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + mContext.getPackageName()));
+            if (null != intent.resolveActivity(mContext.getPackageManager())) {
+                mContext.startActivity(intent);
+            }
         }
-        else{
-            AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-            dialog.setTitle("Error de Conexión");
-            dialog.setMessage("No está conectado a internet");
-            dialog.setCancelable(false);
-            dialog.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog1, int i) {
-                    dialog1.cancel();
-                }
-            });
-            dialog.show();
-        }
-    }*/
+
+
+    }
 
     public static void QuerySubmit(Context context, MenuItem menuItem, int cantidadArticulos, String query){
         Intent intent = new Intent(context,ActivitySearchResults.class);

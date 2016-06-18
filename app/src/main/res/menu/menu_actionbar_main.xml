@@ -41,6 +41,11 @@
                 android:icon="@drawable/ic_action_share"
                 android:orderInCategory="6"
                 appcompat:showAsAction="always|withText" />
+            <item android:id="@+id/action_rate"
+                android:title="@string/action_rate"
+                android:icon="@drawable/ic_action_good"
+                android:orderInCategory="7"
+                appcompat:showAsAction="always|withText" />
         </menu>
     </item>
 </menu>

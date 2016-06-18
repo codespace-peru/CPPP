@@ -25,13 +25,11 @@ import java.util.List;
 public class ActivitySecondMain extends AppCompatActivity implements SearchView.OnQueryTextListener {
     private SQLiteHelperCodPenal myDBHelper;
     private ExpandableListView myExpand;
-    private AdapterExpandableListSecond myAdapter;
     private List<Tools.RowTitulo> listHeader;
     private HashMap<Tools.RowTitulo, List<Tools.RowCapitulo>> listChild;
     private int numLibro;
     private int numSeccion;
     private int cantidadArticulosNorma;
-    private SearchView searchView;
     private MenuItem menuItem;
 
     @Override
@@ -56,7 +54,7 @@ public class ActivitySecondMain extends AppCompatActivity implements SearchView.
             temp = myDBHelper.getSeccion(numLibro, numSeccion);
             textView2.setText(temp[0] + ": " + temp[1]);
             prepararData();
-            myAdapter = new AdapterExpandableListSecond(this, listHeader, listChild);
+            AdapterExpandableListSecond myAdapter = new AdapterExpandableListSecond(this, listHeader, listChild);
             myExpand = (ExpandableListView) findViewById(R.id.explvSecond);
             myExpand.setGroupIndicator(null);
             myExpand.setAdapter(myAdapter);
@@ -209,16 +207,16 @@ public class ActivitySecondMain extends AppCompatActivity implements SearchView.
         String[][] titulos, capitulos;
         try{
             titulos = myDBHelper.getTitulos(numLibro, numSeccion);
-            for(int i=0; i<titulos.length;i++){
-                Tools.RowTitulo temp1 = new Tools.RowTitulo(Integer.parseInt(titulos[i][0]), Integer.parseInt(titulos[i][1]), Integer.parseInt(titulos[i][2]),titulos[i][3], titulos[i][4]);
+            for (String[] titulo : titulos) {
+                Tools.RowTitulo temp1 = new Tools.RowTitulo(Integer.parseInt(titulo[0]), Integer.parseInt(titulo[1]), Integer.parseInt(titulo[2]), titulo[3], titulo[4]);
                 listHeader.add(temp1);
             }
 
             for(int i=0; i<listHeader.size();i++){
                 capitulos = myDBHelper.getCapitulos(numLibro, numSeccion,i+1);
                 childList = new ArrayList<>();
-                for(int j=0;j<capitulos.length;j++){
-                    child = new Tools.RowCapitulo(Integer.parseInt(capitulos[j][0]),Integer.parseInt(capitulos[j][1]),Integer.parseInt(capitulos[j][2]),Integer.parseInt(capitulos[j][3]),capitulos[j][4],capitulos[j][5]);
+                for (String[] capitulo : capitulos) {
+                    child = new Tools.RowCapitulo(Integer.parseInt(capitulo[0]), Integer.parseInt(capitulo[1]), Integer.parseInt(capitulo[2]), Integer.parseInt(capitulo[3]), capitulo[4], capitulo[5]);
                     childList.add(child);
                 }
                 listChild.put(listHeader.get(i),childList);
@@ -246,7 +244,7 @@ public class ActivitySecondMain extends AppCompatActivity implements SearchView.
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_actionbar_main, menu);
         final MenuItem searchItem =menu.findItem(R.id.action_search);
-        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setOnQueryTextListener(this);
         searchView.setQueryHint("Búsqueda...");
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
@@ -278,6 +276,9 @@ public class ActivitySecondMain extends AppCompatActivity implements SearchView.
                 break;
             case R.id.action_share:
                 Tools.ShareApp(this);
+                break;
+            case R.id.action_rate:
+                Tools.RateApp(this,getPackageName());
                 break;
         }
         return super.onOptionsItemSelected(item);

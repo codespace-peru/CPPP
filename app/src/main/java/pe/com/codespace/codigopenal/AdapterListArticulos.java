@@ -22,7 +22,7 @@ public class AdapterListArticulos extends ArrayAdapter {
 
     private final Context context;
     private final String[][] values;
-    private final List<String[]> misArticulos = new ArrayList<String[]>();
+    private final List<String[]> misArticulos = new ArrayList<>();
     private String searchText = "";
     private boolean search = false;
 
@@ -31,9 +31,9 @@ public class AdapterListArticulos extends ArrayAdapter {
         super(pContext, R.layout.single_item_twoline, pValues);
         this.context = pContext;
         this.values = pValues;
-        String[] temp;// = null;// = new String[]{"1","2","3","4"}; // = {values[i][0], values[i][1],values[i][2],values[i][3]};
-        for(int i=0; i<values.length;i++){
-            temp = new String[] {values[i][0],values[i][1],values[i][2],values[i][3]};
+        String[] temp;
+        for (String[] value : values) {
+            temp = new String[]{value[0], value[1], value[2], value[3]};
             misArticulos.add(temp);
         }
     }
@@ -45,8 +45,8 @@ public class AdapterListArticulos extends ArrayAdapter {
         this.searchText = sSearch;
         this.search = flag;
         String[] temp;
-        for(int i=0; i<values.length;i++){
-            temp = new String[] {values[i][0],values[i][1],values[i][2],values[i][3]};
+        for (String[] value : values) {
+            temp = new String[]{value[0], value[1], value[2], value[3]};
             misArticulos.add(temp);
         }
     }
@@ -94,13 +94,13 @@ public class AdapterListArticulos extends ArrayAdapter {
         String normalizedText = originalText.toLowerCase(); //Normalizer.normalize(originalText, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
         String[] searchWord = search.toLowerCase().split(" ");
         Spannable highlighted = new SpannableString(originalText);
-        for(int i=0;i<searchWord.length;i++){
-            int start = normalizedText.indexOf(searchWord[i]);
+        for (String aSearchWord : searchWord) {
+            int start = normalizedText.indexOf(aSearchWord);
             while (start >= 0) {
                 int spanStart = Math.min(start, originalText.length());
-                int spanEnd = Math.min(start + searchWord[i].length(), originalText.length());
+                int spanEnd = Math.min(start + aSearchWord.length(), originalText.length());
                 highlighted.setSpan(new BackgroundColorSpan(Color.YELLOW), spanStart, spanEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                start = normalizedText.indexOf(searchWord[i], spanEnd);
+                start = normalizedText.indexOf(aSearchWord, spanEnd);
             }
         }
         return highlighted;
